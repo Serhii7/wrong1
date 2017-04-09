@@ -29,7 +29,6 @@ app.post('/', function(req, res) {
 			
 		}else{
 			console.log('false');
-			res.method = "GET";
 			res.redirect("/userpage.html");
 	
 		}
