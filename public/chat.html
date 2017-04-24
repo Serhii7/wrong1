@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Chat</title>
+</head>
+<body>
+<ul id="messages">
+	
+</ul>
+<form action=" ">
+	<input type="text" id="m">
+	<button>Sent</button>
+	
+</form>
+<script src="../socket.io.js"></script>
+<script
+  src="https://code.jquery.com/jquery-3.2.1.min.js"
+  integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+  crossorigin="anonymous"></script>
+<script>
+  
+  $(function () {
+
+  	$.urlParam = function(name){
+  	    var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
+  	    if (results==null){
+  	       return null;
+  	    }
+  	    else{
+  	       return results[1] || 0;
+  	    }
+  	}
+
+  	var val = $.urlParam('dialog');
+    
+    var socket = io();
+    socket.emit('init',val);
+	  	
+
+      $('form').submit(function(){
+        socket.emit('chat message',{'mess': $('#m').val(),'room':val});
+        $('#m').val('');
+        return false;
+      });
+      socket.on('chat message', function(msg){
+            $('#messages').append("<button class = 'del' data-id = "+ msg.id +">Delete</button>").append($('<li>').text(msg.mess));
+          });
+      socket.on('messages', function(dialogs){
+      	console.log(dialogs);
+      	
+      	dialogs.forEach(function(el){
+      		socket.off('messages');
+      		$('#messages').append("<button class = 'del' data-id = "+ el._id +">Delete</button>").append($('<li>').text(el.text));
+      	});
+	  	$('.del').click(function(){
+	  		// consolelog($(this).attr("data-id"));
+	  		var id = $(this).attr("data-id");
+	  		socket.emit('delete', id)
+	  	});
+      });
+
+    });
+</script>
+</body>
+</html>

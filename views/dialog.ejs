@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Posts</title>
+</head>
+<body>
+
+	<%= tokenObg.q %>
+	<a id = "signOut" href = "/">Sign Out</a>
+	<form>
+		<input type="text" name="searchPerson" placeholder="Person">
+		<button id = "findPerson">Find</button>
+	</form>
+
+	<form>
+		<input type="text" name="text" placeholder="Twitt">
+		<button id = "add_repost">Repost</button>
+	</form>
+		<div id="wrapper-posts">
+			<% for(var i = 0; i < posts.length; i++){ %>
+			<div class = "wrapper-post">
+			<hr>
+				<div class = "text-post">
+					<%= posts[i].text %>
+				</div>
+				<div post-id = "<%= posts[i]._id %>" class = "likesPost">
+						<%= posts[i].likes %>
+				</div>
+
+				<div data-id = "<%= posts[i]._id %>" class = "deletePost">Delete</div>
+				<input type="text" id="comment" placeholder="Comment">
+				<button id = "SernComment" post-id = <%= posts[i]._id %>>Send</button>
+				<% for(var j = 0; j < posts[i].comments.length; j++){ %>
+					<div>
+						<h1><%= posts[i].comments[j].textComment %></h1>
+						<div comment-id= "<%= posts[i].comments[j]._id %>" post-id = "<%= posts[i]._id %>" class = "likes">
+						<%= posts[i].comments[j].likes %></div>
+						<div comment-id= "<%= posts[i].comments[j]._id %>" post-id = "<%= posts[i]._id %>" class = "delete">Delete Comment</div>
+						</div>
+						<% } %>
+					</div>
+				<% } %>
+			</div>
+
+		<div style= "display:none" id = "template">
+			<div class = "wrapper-post" >
+				<div class = "text-post"></div>
+				<div data-id = "" class = "deletePost">Delete</div>
+			</div>
+		</div>
+
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="./client.js"></script>
+</body>
+</html>

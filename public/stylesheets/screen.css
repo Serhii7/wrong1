@@ -1,0 +1,60 @@
+/* Welcome to Compass.
+ * In this file you should write your main styles. (or centralize your imports)
+ * Import this file using the following HTML or equivalent:
+ * <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css" /> */
+/*@import "compass/reset";*/
+/* line 7, ../sass/screen.scss */
+.wrapper {
+  height: 100vh;
+  background: url("../images/bg-sign.jpg") no-repeat;
+  background-size: cover;
+}
+
+/* line 12, ../sass/screen.scss */
+.top-menu {
+  background: #fff;
+  overflow: hidden;
+}
+/* line 15, ../sass/screen.scss */
+.top-menu .navbar-nav {
+  display: block;
+  width: 100%;
+  padding-left: 45px;
+}
+
+/* line 21, ../sass/screen.scss */
+.content {
+  clear: both;
+}
+
+/* line 24, ../sass/screen.scss */
+.title-text {
+  display: block;
+  color: #fff;
+  font-size: 32px;
+  font-weight: 600;
+}
+
+/* line 30, ../sass/screen.scss */
+.text-title {
+  display: block;
+  color: #fff;
+  font-size: 23px;
+}
+
+/* line 35, ../sass/screen.scss */
+.btn {
+  padding: 0;
+}
+/* line 37, ../sass/screen.scss */
+.btn a {
+  color: #fff;
+  text-decoration: none;
+  display: block;
+  padding: 7px 15px;
+}
+
+/* line 44, ../sass/screen.scss */
+.content {
+  padding-top: 105px;
+}
