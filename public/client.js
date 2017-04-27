@@ -117,6 +117,19 @@ $("div.likes").click(function(e){
     });
 
 });
+$("#findPerson").click(function(e){
+    e.preventDefault();
+    var user = $('input[name="searchPerson"]').val().trim();
+    $.ajax({
+        url: "/searchUser",
+        method: "POST",
+        data: {
+            "user": user,
+        },
+    }).then(function(res) {
+        console.log(res);
+    });
+})
 $("div.deletePost[data-id]").click(function(e){
     e.preventDefault();
     var id = $(e.currentTarget).attr("data-id");
@@ -130,6 +143,58 @@ $("div.deletePost[data-id]").click(function(e){
     }).then(function(res) {
         console.log(res);
      $( e.currentTarget).parent().remove();
+    });
+});
+$("#bowntags").click(function(e){
+    e.preventDefault();
+    var owntag = $("#owntages").val();
+    $.ajax({
+        url: "/tags",
+        method: "POST",
+        data: {
+            "tag":owntag,
+            "oparation":"owntags"
+        },
+    }).then(function(res) {
+        console.log(res);
+    });
+});
+$("#btag").click(function(e){
+    e.preventDefault();
+    var owntag = $("#tag").val();
+    $.ajax({
+        url: "/tags",
+        method: "POST",
+        data: {
+            "tag":owntag,
+            "oparation":"tag"
+        },
+    }).then(function(res) {
+        console.log(res);
+    });
+});
+$("#writeMessage").click(function(e){
+    var userId = $(e.currentTarget).attr("user-id");
+    $.ajax({
+        url: "/sendMessege",
+        method: "POST",
+        data: {
+            "userId":userId
+        },
+    }).then(function(res) {
+        console.log(res);
+    });
+});
+$("#follow").click(function(e){
+    var userId = $(e.currentTarget).attr("user-id");
+    $.ajax({
+        url: "/follow",
+        method: "POST",
+        data: {
+            "userId":userId
+        },
+    }).then(function(res) {
+        console.log(res);
     });
 })
 $("#loginSignUp").click(function() {

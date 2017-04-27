@@ -8,6 +8,20 @@ var userSchema = new Schema({
   password: { type: String, required: true },
   admin: Boolean,
   location: String,
+  owntags:[
+    {owntag:String}
+  ],
+  tag:String,
+  dialogs:[
+    { idDialog:String}
+  ],
+  follower:[
+    { idFollower:String}
+  ],
+  follow:[
+    { idUser:String}
+  ],
+
   meta: {
     age: Number,
     website: String

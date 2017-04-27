@@ -25,24 +25,39 @@
 					<%= posts[i].text %>
 				</div>
 				<div post-id = "<%= posts[i]._id %>" class = "likesPost">
-						<%= posts[i].likes %>
+					<%= posts[i].likes %>
 				</div>
 
 				<div data-id = "<%= posts[i]._id %>" class = "deletePost">Delete</div>
 				<input type="text" id="comment" placeholder="Comment">
 				<button id = "SernComment" post-id = <%= posts[i]._id %>>Send</button>
-				<% for(var j = 0; j < posts[i].comments.length; j++){ %>
+
+				<% for(var j = 0; j < comment[i].length; j++){ %>
 					<div>
-						<h1><%= posts[i].comments[j].textComment %></h1>
-						<div comment-id= "<%= posts[i].comments[j]._id %>" post-id = "<%= posts[i]._id %>" class = "likes">
-						<%= posts[i].comments[j].likes %></div>
-						<div comment-id= "<%= posts[i].comments[j]._id %>" post-id = "<%= posts[i]._id %>" class = "delete">Delete Comment</div>
+						<h1><%= comment[i][j].textComment %></h1>
+						<div comment-id= "<%= comment[i][j]._id %>" post-id = "<%= posts[i]._id %>" class = "likes">
+						<%= comment[i][j].likes %></div>
+						<div comment-id= "<%= comment[i][j]._id %>" post-id = "<%= posts[i]._id %>" class = "delete">Delete Comment</div>
 						</div>
 						<% } %>
 					</div>
 				<% } %>
 			</div>
-
+	<hr>
+	<div id="regomendation">
+	<input type="text" id="owntages">
+	<button id = "bowntags">Add my tag</button>
+	<input type="text" id="tag">
+	<button id = "btag">Add search tag</button>
+	<hr>
+		
+	</div>
+	<div id="dialogs">
+	Dialogs
+		<% for(var i = 0; i < dialogs.length; i++){ %>
+		<a href="/chat/?dialog=<%= dialogs[i] %>">Диалог1</a>
+		<% } %>
+	</div>
 		<div style= "display:none" id = "template">
 			<div class = "wrapper-post" >
 				<div class = "text-post"></div>

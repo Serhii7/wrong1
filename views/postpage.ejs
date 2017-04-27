@@ -5,22 +5,59 @@
 	<title>Posts</title>
 </head>
 <body>
-	<form>
-		<input type="text" name="text">
-		<button id = "add_repost">Repost</button>
-	</form>
-	<% for(var i = 0; i < a.length; i++){ %>
-		<h1><%= a[i].text %></h1>
-	<% } %>
 
-	<% for(var j = 0; j < posts[i].comments.length; j++){ %>
-				<h1><%= posts[i].comments[j].textComment %></h1>
-				<% } %>
+	<%= tokenObg.q %>
+	<a id = "signOut" href = "/">Sign Out</a>
+	<form>
+		<input type="text" name="searchPerson" placeholder="Person">
+		<button id = "findPerson">Find</button>
+	</form>
+	<div id="writeMessage" user-id = <%= userId %>>
+		Send
+	</div>
+	<div id="follow" user-id = <%= userId %>>
+		Follow
+	</div>
+
+<!-- 	<form>
+		<input type="text" name="text" placeholder="Twitt">
+		<button id = "add_repost">Repost</button>
+	</form> -->
+		<div id="wrapper-posts">
+			<% for(var i = 0; i < posts.length; i++){ %>
+			<div class = "wrapper-post">
+			<hr>
+				<div class = "text-post">
+					<%= posts[i].text %>
 				</div>
-		<script src="https://<% for(var j = 0; j < posts[i].comments.length; j++){ %>
-			<h1><%= posts[i].comments[j].textComment %></h1>
-			<% } %>
-			</div>cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+				<div post-id = "<%= posts[i]._id %>" class = "likesPost">
+					<%= posts[i].likes %>
+				</div>
+
+			<!-- 	<div data-id = "<%= posts[i]._id %>" class = "deletePost">Delete</div> -->
+				<input type="text" id="comment" placeholder="Comment">
+				<button id = "SernComment" post-id = <%= posts[i]._id %>>Send</button>
+
+				<% for(var j = 0; j < comment[i].length; j++){ %>
+					<div>
+						<h1><%= comment[i][j].textComment %></h1>
+						<div comment-id= "<%= comment[i][j]._id %>" post-id = "<%= posts[i]._id %>" class = "likes">
+						<%= comment[i][j].likes %></div>
+					<!-- 	<div comment-id= "<%= comment[i][j]._id %>" post-id = "<%= posts[i]._id %>" class = "delete">Delete Comment</div>
+						</div> -->
+						<% } %>
+					</div>
+				<% } %>
+			</div>
+
+		<div style= "display:none" id = "template">
+			<div class = "wrapper-post" >
+				<div class = "text-post"></div>
+				<div data-id = "" class = "deletePost">Delete</div>
+			</div>
+		</div>
+
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script src="../client.js"></script>
 </body>
 </html>

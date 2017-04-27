@@ -11,10 +11,7 @@ var postSchema = new Schema({
 			likes:Number,
 			data:{ type: Date, default: Date.now },
 			comments:[{
-				user_id_comments:String,
-				textComment:String,
-				likes:Number,
-				dataC:{ type: Date, default: Date.now }
+				commentsId:String
 			}]
 		}
 	]

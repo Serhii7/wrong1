@@ -8,6 +8,7 @@ var dialogSchema = new Schema({
   date:{ type: Date, default: Date.now },
   msg:[
   {
+    author:String,
   	name:String,
   	text:String,
   	datem:{ type: Date, default: Date.now }
@@ -16,7 +17,7 @@ var dialogSchema = new Schema({
 });
 
 
-var Dialog = mongoose.model('Comment', dialogSchema);
+var Dialog = mongoose.model('Dialog', dialogSchema);
 
 module.exports = Dialog;
 
