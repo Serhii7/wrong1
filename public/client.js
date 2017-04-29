@@ -81,6 +81,26 @@ $("button[post-id]").click(function(e){
     }
 
 });
+$("#adds").submit(function(e){
+    e.preventDefault();
+
+    var formData = new FormData($(this)[0]);
+    var text = $("#textPost").val();
+    formData.append('text', text);
+   $.ajax({
+       url: '/uploadsPost',
+       type: 'POST',
+       data:formData,
+       //async: false,
+       cache: false,
+       contentType: false,
+       enctype: 'multipart/form-data',
+       processData: false,
+       success: function (response) {
+         alert(response);
+       }
+   });
+});
 $("div.delete[comment-id]").click(function(e){
     e.preventDefault();
     var idP = $(e.currentTarget).attr("post-id");
@@ -129,6 +149,20 @@ $("#findPerson").click(function(e){
     }).then(function(res) {
         console.log(res);
     });
+})
+$(".likesPost").click(function(e){
+    e.preventDefault();
+   var id = $(e.currentTarget).attr("post-id");
+   $.ajax({
+       url: "/likePost",
+       method: "POST",
+       data: {
+           "id": id,
+       },
+   }).then(function(res) {
+       console.log(res);
+    $( e.currentTarget).parent().remove();
+   });
 })
 $("div.deletePost[data-id]").click(function(e){
     e.preventDefault();

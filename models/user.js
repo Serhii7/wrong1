@@ -8,6 +8,8 @@ var userSchema = new Schema({
   password: { type: String, required: true },
   admin: Boolean,
   location: String,
+  pathAvatar:String,
+  pathBg:String,
   owntags:[
     {owntag:String}
   ],
@@ -26,6 +28,7 @@ var userSchema = new Schema({
     age: Number,
     website: String
   },
+  describe:String,
   created_at: Date,
   updated_at: Date
 });
