@@ -3,6 +3,7 @@ var Schema = mongoose.Schema;
 
 var commentSchema = new Schema({
 	id_post:String,
+	user_id_who_comment:String,
 	user_id_comments:String,
 	textComment:String,
 	likes:Number,
@@ -11,7 +12,7 @@ var commentSchema = new Schema({
 			idUser:String
 		}
 	],
-	dataC:{ type: Date, default: Date.now }
+	dataC:String
 
 });
 

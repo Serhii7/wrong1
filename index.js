@@ -59,7 +59,9 @@ var io = require('socket.io')(http);
 var jwt  = require('jsonwebtoken');
 
 mongoose.connect('mongodb://localhost/mynewbase', function(error) {
+	if(error){
 	console.log(error);
+}
 });
 
 
@@ -78,9 +80,11 @@ app.post("/uploadsPost", uploadPost.single('uploadFileP') ,function(req, res){
 		var postnew = new Post({
 
 			user_id_who:tokenObj._id,
+			user_id:tokenObj.q,
 			text: req.body.text[0],
 			likes:0,
-			picture:req.file.path
+			picture:req.file.path,
+			date:new Date().toJSON().slice(0,10)
 		});
 		postnew.save(function(err) {
 	  		if (err) throw err;
@@ -219,7 +223,7 @@ app.get('/userpage',function(req,res){
 		}
 		Post.find({user_id_who: tokenObg._id}, function(err, posts) {
 			if (err) throw err;
-			console.log(posts);
+			// console.log(posts);
 					userDialog(posts);
 				
 			}
@@ -244,44 +248,109 @@ app.get('/userpage',function(req,res){
 						if(posts.length == 0){
 							render([],[],dialogsList);
 						}
-						comment(posts, dialogsList);
+						recomendation(posts, dialogsList);
 					}
 				});
 				});
 			});
 		};
-		function comment(posts, dialogsList){
+
+		function recomendation(posts, dialogsList){
+			User.findOne({"_id":tokenObg._id},function(err, docs){
+				if(err) throw err;
+				var tag = docs.tag;
+
+				User.find({'owntags.owntag':tag}).sort({'follow':-1}).limit(5).exec(function(err, recom){
+					// console.log("strat" + us +" kznm");
+					comment(posts, dialogsList, recom);
+				});
+			});
+					followers();
+		}
+		function followers(){
+			var follow = [];
+			j = 0;
+			User.findOne({_id:tokenObg._id}, function(err, docs){
+				if(err) throw err;
+				docs.follower.forEach(function(ell) {
+					User.findOne({_id:ell.idFollower},function(err, user) {
+						follow.push({
+							username:ell.username,
+							pathAvatar:ell.pathAvatar,
+							describe:ell.describe
+						});
+						j++;
+						if(j == docs.follower.length){
+							// console.log("foolow"+follow+"end" );
+						}
+					})
+				})
+			});
+		}
+		function comment(posts, dialogsList, recom){
 			var comments = [];
 			var content = [];
+			var user;
 			var j = 0;
-			if(posts.length == 0){
-				render(posts ,comments, dialogsList);
-			}
-
-			posts.forEach(function(ell){
-				Comments.find({id_post:ell._id}, function(err,docs){
-					content.push({
-						_id:ell._id,
-						text:ell.text,
-						likes:ell.likes,
-						user_id:ell.user_id_who,
-						comments:docs,
-						picture:ell.picture
+			User.findOne({_id:tokenObg._id},function(err, doc){
+				if(err) throw err;
+				if(doc){
+					user = doc;
+					// console.log(doc + "this is a user");
+				}
+				if(posts.length == 0){
+					render(posts ,comments, dialogsList, user);
+				} else {
+					serchpost();
+				}
+			})
+			function serchpost() {
+				posts.forEach(function(ell){
+					Comments.find({id_post:ell._id}, function(err,docs){
+						content.push({
+							_id:ell._id,
+							text:ell.text,
+							likes:ell.likes,
+							user_id:ell.user_id,
+							user_id_who:ell.user_id_who,
+							comments:docs,
+							picture:ell.picture,
+							date:ell.date
+						});
+						j++;
+						if(j == posts.length){
+							render(content ,comment, dialogsList, user, recom);
+						}
 					});
-					j++;
-					if(j == posts.length){
-						// console.log(content[0].comments[0].textComment);
-						render(content ,comment, dialogsList);
-					}
-				});
 				})
-			
+			}
 		}
-		function render(posts,comments, dialogsList){
-			User.findOne({_id:tokenObg._id},function(err,docs){
+		function render(posts,comments, dialogsList, user, recom){
+			//User.findOne({_id:tokenObg._id},function(err,docs){
+
+				var follow = [];
+				j = 0;
+				User.findOne({_id:tokenObg._id}, function(err, docs){
+					if(err) throw err;
+					docs.follower.forEach(function(ell) {
+						User.findOne({_id:ell.idFollower},function(err, userParam) {
+							follow.push({
+								username:userParam.username,
+								pathAvatar:userParam.pathAvatar,
+								describe:userParam.describe
+							});
+							j++;
+							if(j == docs.follower.length){
+								// console.log("foolow"+follow+"end" );
+								res.render("dialog.ejs", {tokenObg:tokenObg , posts:posts,comment:comments, dialogs: dialogsList, path:docs.pathAvatar, pathBg:docs.pathBg, users:user, recom:recom, follow:follow});
+							}
+						})
+					})
+				});
+
+
 				// console.log(docs);
-				res.render("dialog.ejs", {tokenObg:tokenObg , posts:posts,comment:comments, dialogs: dialogsList,path:docs.pathAvatar,pathBg:docs.pathBg});
-			});
+			//});
 		}
 	}
 })
@@ -355,26 +424,34 @@ app.get('/userpage/:id',function(req,res){
 			}
 		);
 
-		function comment(posts){
+		function comment(posts, dialogsList){
 			var comments = [];
-			
+			var content = [];
 			var j = 0;
-			if(posts[0].post.length == 0){
-				render(posts[0].post ,comments);
+			if(posts.length == 0){
+				render(posts ,comments, dialogsList);
 			}
-			Comments.find({},function(err,comment){
-				for(var i = 0; i<posts[0].post.length;i++){
-					Comments.find({id_post:posts[0].post[i]._id},function(err,comment){
-						comments.push(comment);
-						j++;
-						if(j ==posts[0].post.length){
-					console.log(comments[0][1]);
-					render(posts[0].post ,comments);
-				}
-					})
-				}
-				
-			})
+
+			posts.forEach(function(ell){
+				Comments.find({id_post:ell._id}, function(err,docs){
+					content.push({
+						_id:ell._id,
+						text:ell.text,
+						likes:ell.likes,
+						user_id:ell.user_id,
+						user_id_who:ell.user_id_who,
+						comments:docs,
+						picture:ell.picture,
+						date:ell.date
+					});
+					j++;
+					if(j == posts.length){
+						// console.log(content[0].comments[0].textComment);
+						render(content ,comment, dialogsList);
+					}
+				});
+				})
+			
 		}
 		function render(posts,comments){
 			res.render("postpage.ejs", {tokenObg:tokenObg , posts:posts,comment:comments,userId:userId });
@@ -422,9 +499,11 @@ app.post("/addposts", function(req,res){
 		var postnew = new Post({
 
 			user_id_who:tokenObj._id,
+			user_id:tokenObj.q,
 			text: postData.text,
 			picture:postData.picture,
-			likes:0
+			likes:0,
+			date:new Date().toJSON().slice(0,10)
 		});
 		postnew.save(function(err) {
 	  		if (err) throw err;
@@ -485,17 +564,20 @@ app.post('/tags', function(req,res){
 		});
 		break;
 	}
+	recomendation();
+	function recomendation(){
 		User.findOne({"_id":tokenObj._id},function(err, docs){
 			if(err) throw err;
 			var tag = docs.tag;
 
-			User.find({'owntags.owntag':tag}).sort({'follow':1}).limit(2).exec(function(err, us){
+			User.find({'owntags.owntag':tag}).sort({'follow':1}).limit(5).exec(function(err, us){
 				console.log("strat" + us +" kznm");
 			});
 		});
-		User.findOne({_id:tokenObj._id},function(err, docs){
-			console.log(docs);
-		})
+	}
+		// User.findOne({_id:tokenObj._id},function(err, docs){
+		// 	console.log(docs);
+		// })
 });
 app.post('/follow',function(req, res){
 	var userId = req.body.userId;
@@ -566,7 +648,9 @@ app.post('/comment',function(req, res){
 				id_post:obj.id,
 				user_id_comments:tokenObj._id,
 				textComment:obj.text,
-				likes:0
+				likes:0,
+				user_id_who_comment:tokenObj.q,
+				dataC:new Date().toJSON().slice(0,10)
 			});
 
 			commentnew.save(function(err,e) {
@@ -652,23 +736,71 @@ app.post('/deletePost',function(req, res){
 		res.send("yes delete");
 	});
 	})
-	// Post.findOne({user_id_who:tokenObj._id},function(err,post){
-	// 	if(err) throw err;
-
-	// 	if(post){
-	// 		Post.update({"_id": post._id}, {"$pull": { "post": {"_id":id} } },function(err){
-	// 			if(err){console.log(err);}
-	// 			res.send("yes delete");
-	// 		});
-	// 	}else{
-	// 		res.send("not delete");
-	// 	}
-	// 	// Comments.remove({id_post:post.id},{justOne:false},function(err){
-	// 	// 	if(err) throw err;
-	// 	// })
-	// });
-
 })
+app.post('/loadDialogs',function(req, res){
+	var token = req.cookies.token;
+	var tokenObj = tokenVerify(token);
+	var dialogsList = [];
+	var j = 0;
+	User.findOne({_id:tokenObj._id},function(err,userDialogs){
+		// console.log(userDialogs.dialogs[0].idDialog + userDialogs.username);
+		userDialogs.dialogs.forEach(function(ell){
+		Dialog.findOne({_id:ell.idDialog},function(err,wer){
+			 if(wer.msg.length > 0){
+				if(wer.id_user1 ==tokenObj._id){
+					User.findOne({_id:wer.id_user2},function(err, result) {
+						dialogsList.push({id:wer._id, user:result.username,mess:wer.msg[wer.msg.length-1].text, img:result.pathAvatar});
+						j++;
+						console.log(j + " " +userDialogs.dialogs.length);
+						if(j == userDialogs.dialogs.length){
+							res.send(dialogsList);
+						}
+					})
+				}else{
+				 	User.findOne({_id:wer.id_user1},function(err, result) {
+						dialogsList.push({id:wer._id, user:result.username, mess:wer.msg[wer.msg.length-1].text, img:result.pathAvatar});
+						j++;
+						console.log(j + " " +userDialogs.dialogs.length);
+						if(j == userDialogs.dialogs.length){
+							res.send(dialogsList);
+						}
+					})
+				 }
+				//dialogsList.push(wer);
+					
+			}
+			
+		});
+
+		});
+	});
+});
+app.get('/setting', function(req, res){
+	var obj = req.body;
+	var token = req.cookies.token;
+	var tokenObj = tokenVerify(token);
+		if(tokenObj ==null){
+			res.send("<h1>403</h1");
+		}
+	User.findOne({_id:tokenObj},function(err, user){
+	res.render("setting.ejs", {user:user});
+		
+	})
+})
+app.post('/setting', function(req, res){
+	var obj = req.body;
+	var token = req.cookies.token;
+	var tokenObj = tokenVerify(token);
+	for(key in obj){
+		User.update({_id:tokenObj._id},{$set:{[key]:obj[key]}},function (err) {
+			if(err) throw err;
+		});
+	}
+	 // User.findOne({_id:tokenObj._id},function (err, doc) {
+	 // 	console.log(doc);
+	 // })
+	
+});
 
 http.listen(3000, function() {
     console.log("Server is working on http://localhost:3000/");

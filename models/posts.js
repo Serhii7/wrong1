@@ -27,7 +27,7 @@ var postSchema = new Schema({
 				idUser:String
 			}
 		],
-	data:{ type: Date, default: Date.now },
+	date:String,
 	comments:[{
 		commentsId:String
 	}]

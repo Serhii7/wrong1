@@ -3,53 +3,109 @@
 <head>
 	<meta charset="UTF-8">
 	<title>Posts</title>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+	<link rel="stylesheet" type="text/css" href="../stylesheets/screen.css">
 </head>
 <body>
 
-	<%= tokenObg.q %>
-	<a id = "signOut" href = "/">Sign Out</a>
-	<form>
-		<input type="text" name="searchPerson" placeholder="Person">
-		<button id = "findPerson">Find</button>
-	</form>
-	<div id="writeMessage" user-id = <%= userId %>>
-		Send
+	<div class="topmenu">
+		<div class="user-title">
+			<a href="">
+				<%= tokenObg.q %>
+			</a>
+		</div>
+		<div class = "nav-block-userpage">
+			<ul class="nav-userpage">
+				<li><span class="glyphicon glyphicon-send" aria-hidden="true"></span>Notifications</li>
+				<li><span class="glyphicon glyphicon-envelope" aria-hidden="true"></span>Messages</li>
+			</ul>
+		</div>
+		<div class = "form-searchPerson-block">
+			<form>
+				<input type="text" name="searchPerson" placeholder="Person" >
+				<button id = "findPerson"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button>
+			</form>
+		</div>
+		<div class = "nav-menu-dropdown-setting">
+		<div>
+			<span class="glyphicon glyphicon-user" aria-hidden="true"></span>
+		<ul>
+			<li><a id = "signOut" href = "/">Sign Out</a></li>
+			<li><a href="">Setting</a></li>
+		</ul>
+		</div>
+		
+		</div>
 	</div>
-	<div id="follow" user-id = <%= userId %>>
-		Follow
-	</div>
+	
 
-<!-- 	<form>
+
+	<!-- <form enctype="multipart/form-data" method="POST">
+		<input type="file" name="filePost">
 		<input type="text" name="text" placeholder="Twitt">
-		<button id = "add_repost">Repost</button>
+		<button id = "add_repost" type = "submit">Repost</button>
 	</form> -->
+<br>
+
+	<form enctype="multipart/form-data" method="POST" id = "adds">
+	<span>Do you want to add a post?</span>
+		<input type="text" name="text" placeholder="Twitt" id = "textPost">
+	<label class = fileContainer>
+		<span class="glyphicon glyphicon-camera" aria-hidden="true"></span>
+		<span id = "chosen"></span>
+		<input type="file" name="uploadFileP" id = "filea">
+	</label>
+		<button type = "submit"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+</button>
+	</form>
+
 		<div id="wrapper-posts">
 			<% for(var i = 0; i < posts.length; i++){ %>
 			<div class = "wrapper-post">
-			<hr>
+			<div class="block-wrapper-content">
+			<div class="wrapper-img-post">
+			</div>
+			<div data-id = "<%= posts[i]._id %>" class = "deletePost"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></div>
+				<div class="author"><a href="/userpage/<%= posts[i].user_id %>"><%= posts[i].user_id %></a></div>
+				<div class="data-block-comment">
+					<%= posts[i].date %>
+				</div>
 				<div class = "text-post">
 					<%= posts[i].text %>
 				</div>
+				<% if( posts[i].picture){%>
+				<div class = "post-img-content">
+					<img src="../<%= posts[i].picture %>">
+				</div>
+				<%}%>
 				<div post-id = "<%= posts[i]._id %>" class = "likesPost">
+					<span class="glyphicon glyphicon-heart" aria-hidden="true"></span>
 					<%= posts[i].likes %>
 				</div>
 
-			<!-- 	<div data-id = "<%= posts[i]._id %>" class = "deletePost">Delete</div> -->
-				<input type="text" id="comment" placeholder="Comment">
-				<button id = "SernComment" post-id = <%= posts[i]._id %>>Send</button>
-
-				<% for(var j = 0; j < comment[i].length; j++){ %>
-					<div>
-						<h1><%= comment[i][j].textComment %></h1>
-						<div comment-id= "<%= comment[i][j]._id %>" post-id = "<%= posts[i]._id %>" class = "likes">
-						<%= comment[i][j].likes %></div>
-					<!-- 	<div comment-id= "<%= comment[i][j]._id %>" post-id = "<%= posts[i]._id %>" class = "delete">Delete Comment</div>
-						</div> -->
-						<% } %>
-					</div>
+				
+				<div class="wrapper-comment-form">
+					<input type="text" id="comment" placeholder="Comment">
+					<button id = "SernComment" post-id = <%= posts[i]._id %>><span class="glyphicon glyphicon-paperclip" aria-hidden="true"></span></button>
+				</div>
+				</div>
+				<% for(var j = 0; j < posts[i].comments.length; j++){ %>
+									<div class = "wrapper-comment">
+										<div comment-id= "<%= posts[i].comments[j]._id %>" post-id = "<%= posts[i]._id %>" class = "delete"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></div>
+										<div class = "author"><a href="/userpage/<%= posts[i].comments[j].user_id_who_comment %>"><%= posts[i].comments[j].user_id_who_comment %></a></div>
+										<div class = "data-block-comment"><%= posts[i].comments[j].dataC %></div>
+										<div class = "text-comment-wrapper"><%= posts[i].comments[j].textComment %></div>
+										<div comment-id= "<%= posts[i].comments[j]._id %>" post-id = "<%= posts[i]._id %>" class = "likes"><span class="glyphicon glyphicon-heart" aria-hidden="true"></span>
+										<%= posts[i].comments[j].likes %></div>
+										</div>
+					<% } %>
+									</div>
 				<% } %>
 			</div>
 
+
+
+	
 		<div style= "display:none" id = "template">
 			<div class = "wrapper-post" >
 				<div class = "text-post"></div>

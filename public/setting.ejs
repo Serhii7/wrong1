@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Setting</title>
+</head>
+<body>
+	<div class="wrapper">	
+	<div class="wrapper-location-set">
+		<div>Your location is</div>
+		<%= user.location %>
+	</div>
+	<div class="wrapper-decribe-ser">
+		<div>Your page about of</div>
+		<%= user.describe %>
+	</div>
+	<div class="wrapper-avatar">
+		<div>Your Avatar is</div>
+		<img src="..\<%= user.describe %>">
+	</div>	
+	<form id = "formSetting">
+		<input type="text" name = "describe">
+		<input type="text" name="location">
+		<button type = "submit" id = "saveForm">Save</button>
+	</form>
+	</div>
+	<div id="regomendation">
+		<input type="text" id="owntages">
+		<button id = "bowntags">Add my tag</button>
+		<input type="text" id="tag">
+		<button id = "btag">Add search tag</button>
+		<hr>
+	</div>
+	<div>
+	<form enctype="multipart/form-data" method="POST" action="/uploads">	
+		<input type="file" id = "uploadFile" name = "uploadFile" accept="image/*" />
+		<button id="uploadAvatar" type="submit">Submit</button>
+	</form>
+
+	<form enctype="multipart/form-data" method="POST" action="/uploads/bg">	
+		<input type="file" id = "uploadFileBg" name = "uploadFileBg" accept="image/*" />
+		<button id="uploadAvatarBg" type="submit">Submit</button>
+	</form>
+
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+	<script type="text/javascript" src = "./clientForm.js"></script>
+</body>
+</html>

@@ -84,7 +84,29 @@ $("button[post-id]").click(function(e){
 $("#adds").submit(function(e){
     e.preventDefault();
 
+    // console.log($("#filea").val());
+
+    if($("#filea").val() ==""){
+        e.preventDefault();
+         var textpost = $("[name='text']").val();
+         if(textpost.length != 0 ){
+             $.ajax({
+                 url: "/addposts",
+                 method: "POST",
+                 data: {
+                     "text":textpost,
+                     "picture":"",
+                 },
+             }).then(function(res) {
+                 console.log(res);
+                  location.reload();
+                 });
+             }else{
+                 alert("error");
+             }
+    }else{
     var formData = new FormData($(this)[0]);
+
     var text = $("#textPost").val();
     formData.append('text', text);
    $.ajax({
@@ -99,7 +121,7 @@ $("#adds").submit(function(e){
        success: function (response) {
          alert(response);
        }
-   });
+   });}
 });
 $("div.delete[comment-id]").click(function(e){
     e.preventDefault();
@@ -247,3 +269,39 @@ $("#loginSignUp").click(function() {
         console.log(res);
 });
 });
+
+
+
+$("#filea").change(function(){
+   if($("#filea").val() ==""){
+    console.log("no");
+    $("#chosen").hide();
+
+   }else{
+    console.log("yes");
+    $("#chosen").show();
+     $("#chosen").html($("#filea").val());
+   }
+});
+
+var dialog = false;
+$('#loadDialogs').click(function(){
+    if(!dialog){
+        dialog =true;
+    $.ajax({
+        url: "/loadDialogs",
+        method: "POST"
+        }) . then(function(res) {
+            console.log(res);
+            var $dialogWrapper = $('#dialogWrapper');
+            res.forEach(function(dial) {
+                var $dialogTemplate = $("#templateDialog > div").clone();
+                $dialogTemplate.find("[lastMessege]").text(dial.user);
+                $dialogTemplate.find("[avatar]").attr("src","../" + dial.img);
+                $dialogTemplate.find("[textMsg]").text(dial.mess);
+                $dialogTemplate.find("[lastMessege]").attr('href','/chat/?dialog='+dial.id);
+                $dialogWrapper.append($dialogTemplate);
+            })
+        })
+    }
+})

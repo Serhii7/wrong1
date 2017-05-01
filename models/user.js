@@ -29,7 +29,7 @@ var userSchema = new Schema({
     website: String
   },
   describe:String,
-  created_at: Date,
+  created_at: String,
   updated_at: Date
 });
 

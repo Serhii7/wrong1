@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Setting</title>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+	<link rel="stylesheet" type="text/css" href="./stylesheets/screen.css">
+</head>
+<body>
+<div class="topmenu">
+	<div class="user-title">
+		<a href="">
+			<%= user.username %>
+		</a>
+	</div>
+	<div class = "nav-block-userpage">
+		<ul class="nav-userpage">
+			<li><span class="glyphicon glyphicon-send" aria-hidden="true"></span>Notifications</li>
+			<li type="button"  data-toggle="modal" data-target="#myModal" id = "loadDialogs"><span class="glyphicon glyphicon-envelope" aria-hidden="true"></span>Messages</li>
+		</ul>
+	</div>
+	<div class = "form-searchPerson-block">
+		<form>
+			<input type="text" name="searchPerson" placeholder="Person" >
+			<button id = "findPerson"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button>
+		</form>
+	</div>
+	<div class = "nav-menu-dropdown-setting">
+	<div>
+		<span class="glyphicon glyphicon-user" aria-hidden="true"></span>
+	<ul>
+		<li><a id = "signOut" href = "/">Sign Out</a></li>
+		<li><a href="/setting">Setting</a></li>
+	</ul>
+	</div>
+	
+	</div>
+</div>
+	<div class="wrapper-set">	
+		<div class="wrapper-left-set">
+			<div class="title-set">
+					Your can change information about your site here!
+			</div>
+			<div class="wrapper-location-set set">
+				<div>Your location is</div>
+				<%= user.location %>
+			</div>
+			<div class="wrapper-decribe-set set">
+				<div>Your page about of</div>
+				<%= user.describe %>
+			</div>
+			<div class="wrapper-avatar-set set ">
+				<div>Your Avatar is</div>
+				<img src="..\<%= user.pathAvatar %>">
+			</div>	
+			<div class="wrapper-bg-set set">
+				<div>Your Background is</div>
+				<img src="..\<%= user.pathBg %>">
+			</div>	
+			<div class="wrapper-bg-tag set">
+				<div>Your interest is:</div>
+				<%= user.tag %>
+			</div>	
+			<div class="wrapper-bg-tag-page set">
+				<div>Your page about</div>
+				<% for(var i = 0; i < user.owntags.length; i++){%>
+				<%= user.owntags[i].owntag%>
+				<% } %>
+			</div>	
+
+		</div>
+	<div class = "wrapper-right-set">
+	<form id = "formSetting">
+	<div class = "title-set first-title-set">Your personal information</div>
+		<input type="text" name = "describe" placeholder = "Your page about">
+		<input type="text" name="location" placeholder = "Your location">
+		<button type = "submit" id = "saveForm"  class="btn btn-primary">Save</button>
+		<input type="text" name="tag" placeholder = "The tag of your search">
+	</form>
+	<div id="regomendation">
+		<div class = title-set>Your page tags</div>
+		<button id = "bowntags" class="btn btn-primary">Add my tag</button>
+		<input type="text" id="owntages" placeholder = "Your tags">
+	</div>
+	<form enctype="multipart/form-data" method="POST" action="/uploads" id ="formAvatar">	
+		<div class = title-set>Your avatar</div>
+		<input type="file" id = "uploadFile" name = "uploadFile" accept="image/*" />
+		<button id="uploadAvatar" type="submit" class="btn btn-primary">Submit</button>
+	</form>
+
+	<form enctype="multipart/form-data" method="POST" action="/uploads/bg" id = "formBg">	
+	<div class = title-set>Your background</div>
+		<input type="file" id = "uploadFileBg"  name = "uploadFileBg" accept="image/*" />
+		<button id="uploadAvatarBg" type="submit" class="btn btn-primary">Submit</button>
+	</form>
+	</div>
+	</div>
+
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+	 <script src="./client.js"></script>
+	<script type="text/javascript" src = "./clientForm.js"></script>
+</body>
+</html>
