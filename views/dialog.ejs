@@ -10,13 +10,13 @@
 
 	<div class="topmenu">
 		<div class="user-title">
-			<a href="">
+			<a href="/userpage">
 				<%= tokenObg.q %>
 			</a>
 		</div>
 		<div class = "nav-block-userpage">
 			<ul class="nav-userpage">
-				<li><span class="glyphicon glyphicon-send" aria-hidden="true"></span>Notifications</li>
+				<li type="button"  data-toggle="modal" data-target="#myModalNews" id = "loadNews"><span class="glyphicon glyphicon-send" aria-hidden="true"></span>Notifications</li>
 				<li type="button"  data-toggle="modal" data-target="#myModal" id = "loadDialogs"><span class="glyphicon glyphicon-envelope" aria-hidden="true"></span>Messages</li>
 			</ul>
 		</div>
@@ -45,13 +45,20 @@
 	<div class="left-inform-user">
 		<div class = "left-inform-user-top">	
 			<div class="wrapper-img-avatar">
+			<% if(!path){%>
+					<img src="../uploads/noavatar.jpg">	
+			<% } else {%>
 				<img src="../<%= path %>">
+			<% } %>
 			</div>
 			<div class="wrapper-username">
 				<%= users.username %>
 			</div>
 			<div class="wrapper-location">	
 				<span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span>
+				<% if(!users.location){%>
+						Set<a href = "../setting"> here</a>
+				<% } %>
 				<%= users.location %>
 			</div>
 			<div class="wrapper-desript">	
@@ -74,6 +81,9 @@
 		<div class="title-block-recom">
 			We recommend
 		</div>
+		<% if(recom.length == 0){%>
+				<div>Set your tag<a href = "../setting"> here</a></div>
+		<% } %>
 			<% for(var i = 0; i < recom.length; i++){ %>
 			<div class="wrapper-recom-item">
 			<div class="wrapper-img-btn">
@@ -97,19 +107,26 @@
 	<div class="title-block-recom">
 		You follow
 	</div>
-		<% for(var i = 0; i < follow.length; i++) {%>
+		<% if(follows.length == 0){%>
+		<div>You don`t have following</div>
+		<% } %>
+		<% for(var i = 0; i < follows.length; i++) {%>
 		<div class="wrapper-recom-item">
 		<div class="wrapper-img-btn">
-			<img src="..\<%= follow[i].pathAvatar %>">
+		<% if(!follows[i].pathAvatar){%>
+				<img src="../uploads/noavatar.jpg">	
+		<% } else {%>
+			<img src="..\<%= follows[i].pathAvatar %>">
+		<% } %>
 		</div>
 		<div class = "wrapper-left-infor-recom">
 			<div class="wrapper-username">
-			<a href="/userpage/<%= recom[i].username %>">
-				<%= follow[i].username %>
+			<a href="/userpage/<%= follows[i].username %>">
+				<%= follows[i].username %>
 			</a>
 			</div>
 			<div class="usersub">	
-				<%= follow[i].describe %>
+				<%= follows[i].describe %>
 			</div>
 		</div>
 		</div>
@@ -214,22 +231,19 @@
 		</div>
 		</div>
 
-
-
-
 		<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
 		  <div class="modal-dialog" role="document">
 		    <div class="modal-content">
 		      <div class="modal-header">
 		        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-		        <h4 class="modal-title" id="myModalLabel">Dialogs</h4>
+		        <h4 class="modal-title" id="myModalLabel">News</h4>
 		      </div>
 		      <div class="modal-body">
+
 		      <div id="dialogWrapper">
 		        <div id = "templateDialog" style = "display:none">
 		        <div>
-		        	<!-- <div dialogPerson></div> -->
-		        	<img src="" width="50px" avatar>
+		        	<img src="" avatar>
 		        	<a href = "" lastMessege></a>
 		        	<div textMsg></div>
 		        	</div>
@@ -242,8 +256,77 @@
 		    </div>
 		  </div>
 		</div>
+
+
+
+		<div class="modal fade" id="myModalNews" tabindex="-1" role="new" aria-labelledby="myModalLabel">
+		  <div class="modal-dialog" role="document">
+		    <div class="modal-content">
+		      <div class="modal-header">
+		        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+		        <h4 class="modal-title" id="myModalLabel">Dialogs</h4>
+		      </div>
+		      <div class="modal-body">
+					<ul class="nav nav-tabs" role="tablist">
+					   <li role="presentation" class="active"><a href="#comments" aria-controls="comments" role="tab" data-toggle="tab">Comments</a></li>
+					   <li role="presentation"><a href="#likes" aria-controls="likes" role="tab" data-toggle="tab">Likes</a></li>
+					   <li role="presentation"><a href="#posts" aria-controls="posts" role="tab" data-toggle="tab">Posts</a></li>
+					 </ul>
+
+
+					 <div id="templateNewsWrapper">
+			 	    	<div>	
+			 				<div class="img-wrapper-news" img-wrapper-news>
+			 					<img src="" alt="" img-href style = "width:150px;">
+			 				</div>
+			 				<div class="username-wapper-news" username-wapper-news>
+			 					<a href="" a-href></a>
+			 				</div>
+			 				<div class="date-wrapper-news" date-wrapper-news>	</div>
+			 				<div class="text-wrapper-text" text-wrapper-text>	</div>
+			 	    	</div>	
+					 </div>
+			<div class="tab-content">
+			    
+			    <div role="tabpanel" class="tab-pane active" id="comments">
+			    	<div id="wrapperNewsComments">
+			    	
+			    	</div>
+			    </div>
+			    <div role="tabpanel" class="tab-pane" id="likes">
+			    	<div id="wrapperNewsLikes">	
+			    	
+			    	</div>
+			    </div>
+			    <div role="tabpanel" class="tab-pane" id="posts">
+			    	<div id="wrapperNewsPosts">	
+			    	
+			    	</div>
+			    </div>
+			  </div>
+
+
+		      <div id="NewsWrapper">
+		        <div id = "templateNews" style = "display:none">
+		        <div>
+		        	<!-- <div dialogPerson></div> -->
+		        	<img src="" avatar>
+		        	<a href = "" lastMessege></a>
+		        	<div textMsg></div>
+		        	</div>
+		        </div>
+		       </div>
+		      </div>
+		      <div class="modal-footer">
+		        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+		      </div>
+		    </div>
+		  </div>
+		</div>
+		<script src="../socket.io.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
     <script src="./client.js"></script>
+    <script src = "./newsClient.js"></script>
 </body>
 </html>

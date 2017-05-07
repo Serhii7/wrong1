@@ -9,6 +9,7 @@ var path = require('path');
 var bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser');
 var multer = require("multer");
+var News = require('./models/news');
 
 //-------------------
 
@@ -118,14 +119,39 @@ app.get('/',function(req,res){
 });
 
 app.get('/chat',function(req, res){
-	res.sendFile(__dirname +'/public/chat.html');
+	var token = req.cookies.token;
+	var tokenObj = tokenVerify(token);
+	console.log(req.query.dialog + "this body");
+	Dialog.findOne({_id:req.query.dialog},function(err, dialog){
+		console.log(dialog);
+		if(tokenObj._id == dialog.id_user1){
+			Username(dialog, dialog.id_user2);
+		} else {
+			Username(dialog, dialog.id_user1);
+		}
+	});
+	function Username(dialog,user){
+		User.findOne({_id:user},function(err, username){
+			res.render('dialogsUser.ejs',{authorName:tokenObj.q, author:tokenObj._id, dialog:dialog, username:username.username});
+		})
+	}
+	// res.sendFile(__dirname +'/public/chat.html');
+
 });
 app.get('/uploads/:id',function(req,res){
 	var login = req.url.split("/").pop();
 	res.sendFile(__dirname + '/uploads/' + login);
 })
 
+
+
 io.on('connection', function(socket){
+
+
+		socket.on('news',function(token){
+			var tokenObj = tokenVerify(token);
+			socket.join(tokenObj._id);
+		})
 
 		socket.on('init', function(val){
 
@@ -150,7 +176,7 @@ io.on('connection', function(socket){
 						}
 					}
 					// console.log(dialogs + "here");
-					io.emit("messages", messages);
+					io.emit("messages",[]);
 				});
 			}else{
 					// console.log("no");
@@ -183,7 +209,7 @@ io.on('connection', function(socket){
 		Dialog.findOne({}, function(err,dialogs) {
 			  if (err) throw err;
 			  var i = dialogs.msg.length -1;
-			  // console.log(dialogs);
+			 	io.to('58ea8b10be3aab2c54c8f890').emit('news',"Hi, Hello World");
 				io.to(msg.room).emit('chat message',{mess: msg.mess,id:dialogs.msg[i]._id});
 			});
 		});
@@ -223,9 +249,7 @@ app.get('/userpage',function(req,res){
 		}
 		Post.find({user_id_who: tokenObg._id}, function(err, posts) {
 			if (err) throw err;
-			// console.log(posts);
-					userDialog(posts);
-				
+				userDialog(posts);
 			}
 		);
 		function userDialog(posts){
@@ -233,39 +257,30 @@ app.get('/userpage',function(req,res){
 			var dialogsList = [];
 			var j = 0;
 			User.findOne({_id:tokenObg._id},function(err,userDialogs){
-				// console.log(userDialogs.dialogs[0].idDialog + userDialogs.username);
 				userDialogs.dialogs.forEach(function(ell){
-				Dialog.findOne({_id:ell.idDialog},function(err,wer){
-					 if(wer.msg.length > 0){
-						dialogsList.push(wer._id);
-					 	j++;
-							
-					}else{
-					// console.log("false"+wer._id);
-					}
-				if(j == userDialogs.dialogs.length){
-						// console.log(dialogsList);
-						if(posts.length == 0){
-							render([],[],dialogsList);
+					Dialog.findOne({_id:ell.idDialog},function(err,wer){
+						 if(wer.msg.length > 0){
+							dialogsList.push(wer._id);
+						 	j++;
+						}else{
 						}
+					if(j == userDialogs.dialogs.length){
 						recomendation(posts, dialogsList);
 					}
-				});
+					});
 				});
 			});
 		};
-
 		function recomendation(posts, dialogsList){
 			User.findOne({"_id":tokenObg._id},function(err, docs){
 				if(err) throw err;
 				var tag = docs.tag;
 
 				User.find({'owntags.owntag':tag}).sort({'follow':-1}).limit(5).exec(function(err, recom){
-					// console.log("strat" + us +" kznm");
 					comment(posts, dialogsList, recom);
 				});
 			});
-					followers();
+				followers();
 		}
 		function followers(){
 			var follow = [];
@@ -281,7 +296,6 @@ app.get('/userpage',function(req,res){
 						});
 						j++;
 						if(j == docs.follower.length){
-							// console.log("foolow"+follow+"end" );
 						}
 					})
 				})
@@ -296,10 +310,9 @@ app.get('/userpage',function(req,res){
 				if(err) throw err;
 				if(doc){
 					user = doc;
-					// console.log(doc + "this is a user");
 				}
 				if(posts.length == 0){
-					render(posts ,comments, dialogsList, user);
+					render(posts ,comments, dialogsList, user,recom);
 				} else {
 					serchpost();
 				}
@@ -326,31 +339,31 @@ app.get('/userpage',function(req,res){
 			}
 		}
 		function render(posts,comments, dialogsList, user, recom){
-			//User.findOne({_id:tokenObg._id},function(err,docs){
-
-				var follow = [];
+				var followar = [];
 				j = 0;
 				User.findOne({_id:tokenObg._id}, function(err, docs){
+					console.log(docs);
 					if(err) throw err;
-					docs.follower.forEach(function(ell) {
-						User.findOne({_id:ell.idFollower},function(err, userParam) {
-							follow.push({
+					if(docs.follow.length ==0){
+						res.render("dialog.ejs", {tokenObg:tokenObg , posts:posts,comment:comments, dialogs: dialogsList, path:docs.pathAvatar, pathBg:docs.pathBg, users:user, recom:recom, follows:[]});
+					} else {
+					docs.follow.forEach(function(ell) {
+						User.findOne({_id:ell.idUser},function(err, userParam) {
+							console.log(userParam);
+							followar.push({
 								username:userParam.username,
 								pathAvatar:userParam.pathAvatar,
 								describe:userParam.describe
 							});
 							j++;
-							if(j == docs.follower.length){
-								// console.log("foolow"+follow+"end" );
-								res.render("dialog.ejs", {tokenObg:tokenObg , posts:posts,comment:comments, dialogs: dialogsList, path:docs.pathAvatar, pathBg:docs.pathBg, users:user, recom:recom, follow:follow});
+							if(j == docs.follow.length){
+								console.log(followar);
+								res.render("dialog.ejs", {tokenObg:tokenObg , posts:posts,comment:comments, dialogs: dialogsList, path:docs.pathAvatar, pathBg:docs.pathBg, users:user, recom:recom, follows:followar});
 							}
 						})
 					})
-				});
-
-
-				// console.log(docs);
-			//});
+				}
+			});
 		}
 	}
 })
@@ -396,13 +409,13 @@ function tokenVerify(token){
 }
 app.get('/userpage/:id',function(req,res){
 	var login = req.url.split("/").pop();
+	console.log(req.url);
+	console.log(login);
 	var userId;
-
-	User.findOne({username:login},function(err, user1){
-			userId = user1._id;
-			console.log(user1._id + "sdfjkh");
-
 	var token = req.cookies.token;
+
+
+	/*-----------------------*/
 	if(!token){
 		res.sendFile(__dirname +'/public/input.html');
 		return;
@@ -412,56 +425,96 @@ app.get('/userpage/:id',function(req,res){
 		}catch(e){
 			console.log(e);
 		}
-		Post.find({user_id_who: userId}, function(err, posts) {
-			
+		Post.find({user_id: login}, function(err, posts) {
 			if (err) throw err;
-					console.log(posts);
-				if(posts.length == 0){
-					render([],[]);
-				}else{
-					comment(posts);
-				}
+				recomendation(posts, []);
 			}
 		);
+		
+		function recomendation(posts, dialogsList){
+			User.findOne({"_id":tokenObg._id},function(err, docs){
+				if(err) throw err;
+				var tag = docs.tag;
 
-		function comment(posts, dialogsList){
+				User.find({'owntags.owntag':tag}).sort({'follow':-1}).limit(5).exec(function(err, recom){
+					comment(posts, dialogsList, recom);
+				});
+			});
+		}
+		function comment(posts, dialogsList, recom){
 			var comments = [];
 			var content = [];
+			var user;
 			var j = 0;
-			if(posts.length == 0){
-				render(posts ,comments, dialogsList);
-			}
-
-			posts.forEach(function(ell){
-				Comments.find({id_post:ell._id}, function(err,docs){
-					content.push({
-						_id:ell._id,
-						text:ell.text,
-						likes:ell.likes,
-						user_id:ell.user_id,
-						user_id_who:ell.user_id_who,
-						comments:docs,
-						picture:ell.picture,
-						date:ell.date
+			User.findOne({username:login},function(err, doc){
+				if(err) throw err;
+				if(doc){
+					user = doc;
+				}
+				if(posts.length == 0){
+					render(posts ,comments, dialogsList, user,recom);
+				} else {
+					serchpost();
+				}
+			})
+			function serchpost() {
+				posts.forEach(function(ell){
+					Comments.find({id_post:ell._id}, function(err,docs){
+						content.push({
+							_id:ell._id,
+							text:ell.text,
+							likes:ell.likes,
+							user_id:ell.user_id,
+							user_id_who:ell.user_id_who,
+							comments:docs,
+							picture:ell.picture,
+							date:ell.date
+						});
+						j++;
+						if(j == posts.length){
+							render(content ,comment, dialogsList, user, recom);
+						}
 					});
-					j++;
-					if(j == posts.length){
-						// console.log(content[0].comments[0].textComment);
-						render(content ,comment, dialogsList);
-					}
-				});
 				})
-			
+			}
 		}
-		function render(posts,comments){
-			res.render("postpage.ejs", {tokenObg:tokenObg , posts:posts,comment:comments,userId:userId });
-	// res.send("sdf");
+		function render(posts,comments, dialogsList, user, recom){
+				var followar = [];
+				j = 0;
+				User.findOne({username:login}, function(err, docs){
+					console.log(docs);
+					if(err) throw err;
+
+					User.findOne({$and:[{'follower.idFollower':tokenObg._id},{username:login}]},function(err,okey){
+						if(err) throw err;
+						if(okey){
+							var done = "Unfollow";
+						}else{
+							console.log(okey);
+							var done = "Follow";
+						}
+						if(docs.follow.length == 0){
+							res.render("useran.ejs", {tokenObg:tokenObg , posts:posts,comment:comments, dialogs: dialogsList, path:docs.pathAvatar, pathBg:docs.pathBg, users:user, recom:recom, follows:[], done:done});
+						} else {
+						docs.follow.forEach(function(ell) {
+							User.findOne({_id:ell.idUser},function(err, userParam) {
+								console.log(userParam);
+								followar.push({
+									username:userParam.username,
+									pathAvatar:userParam.pathAvatar,
+									describe:userParam.describe
+								});
+								j++;
+								if(j == docs.follow.length){
+									res.render("useran.ejs", {tokenObg:tokenObg , posts:posts,comment:comments, dialogs: dialogsList, path:docs.pathAvatar, pathBg:docs.pathBg, users:user, recom:recom, follows:followar,done:done});
+								}
+							})
+						})
+				}
+					})
+			});
 		}
-
-	}
-});
-
-});
+}});
 app.post("/sendMessege", function(req, res) {
 
 	// User.findOne({},function(err,doc){
@@ -505,38 +558,109 @@ app.post("/addposts", function(req,res){
 			likes:0,
 			date:new Date().toJSON().slice(0,10)
 		});
-		postnew.save(function(err) {
+		postnew.save(function(err,result) {
+	  		if (err) throw err;
+	 		EventNews(result.id, "addPost", result.text, result.picture, tokenObj._id, [], []);
+	 		res.send("done");
+		});
+// Post.find({},function(err,docs){
+// 		console.log("stra" + docs+ "finish")
+// })
+
+});
+
+function EventNews(id,event, text, add, user, user2, userName){
+	switch (event){
+		case 'postLike':
+		var news = text.substr(0,15);
+		console.log(user2);
+				var newsnew = new News({
+			new_id:id,
+			user_id_who:user,
+			user_id:user2,
+			date:new Date().toJSON().slice(0,10),
+			text:"The post was likes by "+ userName + '<br>'+news+add+"...",
+			event:'likes'
+
+		});
+		newsnew.save(function(err) {
 	  		if (err) throw err;
 		});
-Post.find({},function(err,docs){
-		console.log("stra" + docs+ "finish")
-})
+		io.to(user2).emit('news',"The post was likes by "+ userName + '<br>'+news+add+"...");
+		break;
 
-	 res.send("done");
-});
+		case 'addPost':
+		var news = text.substr(0,15);
+		// console.log
+		// console.log(user2);
+			var newsnew = new News({
+			new_id:id,
+			user_id:user,
+			date:new Date().toJSON().slice(0,10),
+			text:"New post "+ userName + '<br>'+news+add+"...",
+			event:'posts'
+		});
+		newsnew.save(function(err) {
+	  		if (err) throw err;
+		});
+		// io.to(user2).emit('news',"The post was likes by "+ userName + '<br>'+news+add+"...");
+		break;
+		case 'addComment':
+		// EventNews(e._id, "addComment", obj.text, [], tokenObj._id, docs.user_id_who, docs.user_id);
+		var news = text.substr(0,15);
+		// console.log
+		// console.log(user2);
+		var newsnew = new News({
+			new_id:id,
+			user_id_who:user,
+			user_id:user2,
+			date:new Date().toJSON().slice(0,10),
+			text:"The new comment from "+ userName + '<br>'+ news + "...",
+			event:'addComment'
+		});
+		newsnew.save(function(err) {
+	  		if (err) throw err;
+		});
+		io.to(user2).emit('news',"The new comment from "+ userName + '<br>' + news + "...");
+		break;
+	}
+		
+}
 app.post("/likePost", function(req, res){
 	var tokenObj = tokenVerify(req.cookies.token);
 	var postData = req.body;
-	Post.findOne({'wholiked.idUser':tokenObj._id},function(err,currentPost){
+
+	Post.findOne({$and:[{'wholiked.idUser':tokenObj._id},{"_id":postData.id}]},function(err,currentPost){
+		// console.log("565"+currentPost);
 		if(currentPost != null){
+			// console.log("this");
+			// console.log(currentPost);
 
 		var likes = currentPost.likes -1;
 
 		Post.update({"_id":postData.id},{$set:{likes:likes}},function(err){
 			if(err){console.log(err);}
 		});
-			Post.update({"_id":postData.id},{$pull:{wholiked:{idUser:tokenObj._id}}},function(err){
+		Post.update({"_id":postData.id},{$pull:{wholiked:{idUser:tokenObj._id}}},function(err){
 				if(err) throw err;
 		});
+		// News.remove({$and:[{'user_id_who':tokenObj._id},{'new_id':postData.id}]},function(err,res){
+		// 	// console.log("dfgdfg"+res+"lkshdf");
+		// 	console.log("Remove");
+		// });
+
 		}else{
+			// console.log("thist");
 			Post.findOne({"_id":postData.id},function(err,currentPost){
 				var likes = currentPost.likes +1;
-
 				Post.update({"_id":postData.id},{$set:{likes:likes}},function(err){
 					if(err){console.log(err);}
 				});
 				Post.update({"_id":postData.id},{$push:{wholiked:{idUser:tokenObj._id}}},function(err){
 					if(err) throw err;
+				if(tokenObj._id !=currentPost.user_id_who){
+				EventNews(currentPost._id, "postLike", currentPost.text, currentPost.picture, tokenObj._id, currentPost.user_id_who, currentPost.user_id);
+				}
 				})
 			})
 		}
@@ -570,9 +694,9 @@ app.post('/tags', function(req,res){
 			if(err) throw err;
 			var tag = docs.tag;
 
-			User.find({'owntags.owntag':tag}).sort({'follow':1}).limit(5).exec(function(err, us){
-				console.log("strat" + us +" kznm");
-			});
+			// User.find({'owntags.owntag':tag}).sort({'follow':1}).limit(5).exec(function(err, us){
+			// 	console.log("strat" + us +" kznm");
+			// });
 		});
 	}
 		// User.findOne({_id:tokenObj._id},function(err, docs){
@@ -586,40 +710,42 @@ app.post('/follow',function(req, res){
 		if(docs == null){
 			User.update({_id:tokenObj._id},{$push:{follow:{idUser:userId}}},function(err){
 				if(err) throw err;
-				console.log("fine");
+				// console.log("fine");
 				User.findOne({_id:tokenObj._id},function(err, docs){
-					console.log(docs);
+					// console.log(docs);
 					following();
 				})
 			});
 			User.update({_id:userId},{$push:{follower:{idFollower:tokenObj._id}}},function(err){
 				if(err) throw err;
-				console.log("fine");
+				// console.log("fine");
+				res.send('Unfollow');
 			});
 
 		} else {
 			User.update({_id:tokenObj._id},{$pull:{follow:{idUser:userId}}},function(err){
 				if(err) throw err;
-				console.log("fine");
+				// console.log("fine");
 				User.findOne({_id:tokenObj._id},function(err, docs){
-					console.log(docs);
+					// console.log(docs);
 					following();
 				})
 			});
 			User.update({_id:userId},{$pull:{follower:{idFollower:tokenObj._id}}},function(err){
 				if(err) throw err;
-				console.log("fine");
+				// console.log("fine");
+				res.send('Follow')
 			});
 		}
 
 	});
 	function following(){
 		User.findOne({_id:tokenObj},function(err, docs){
-			console.log(docs.follow);
+			// console.log(docs.follow);
 		});
 		User.findOne({'follow.idUser':userId, _id:tokenObj._id}, function(err, docs){
 			if(docs){
-				console.log(true);
+				// console.log(true);
 			}
 		});
 	}
@@ -629,7 +755,7 @@ app.post('/searchUser', function(req, res){
 
 	User.find(
     { "username": { "$regex": user, "$options": "i" } }, function(err,docs) { 
-    	console.log(docs);
+    	// console.log(docs);
     	renderUser(docs);
     } 
 );
@@ -655,19 +781,21 @@ app.post('/comment',function(req, res){
 
 			commentnew.save(function(err,e) {
 			  		if (err) throw err;
-			  		console.log(e._id);
+			  		// console.log(e._id);
 					Post.update({ "_id":obj.id},{$push:{"comments":{"commentsId":e._id}}},function(err){
 						if(err){console.log(err);}
-						Post.findOne({},function(err, post){
-							console.log(post.comments);
-						});
+						Post.findOne({_id:obj.id}, function(err, docs){
+							if(tokenObj._id !=docs.user_id_who){
+								EventNews(e._id, "addComment", e.textComment, [], tokenObj._id, docs.user_id_who, tokenObj.q);
+							}
+						})
 					});
 			});
 
 
 		}else if(obj.option == "delete"){
 			Comments.find({},function(err,p){
-				console.log(p);
+				// console.log(p);
 			Comments.findOneAndRemove({_id: obj.idC}, function(err){
 				if(err) throw err;
 				
@@ -675,14 +803,14 @@ app.post('/comment',function(req, res){
 			Post.update({ "_id":obj.idP},{$pull:{"comments":{"commentsId":obj.idC}}},function(err){
 				if(err){console.log(err);}
 				Post.findOne({},function(err, post){
-					console.log(post.comments);
+					// console.log(post.comments);
 				});
 			});
 			})
 		}else if(obj.option =="like"){
 			Comments.findOne({'wholiked.idUser':tokenObj._id},function(err,comment){
 				if(comment != null){
-				console.log(comment);
+				// console.log(comment);
 
 				var likes = comment.likes -1;
 
@@ -710,7 +838,7 @@ app.post('/comment',function(req, res){
 		}
 	}
 	Comments.find({},function(err,comment){
-		console.log(comment);
+		// console.log(comment);
 		res.send("1");
 	});
 });
@@ -751,7 +879,7 @@ app.post('/loadDialogs',function(req, res){
 					User.findOne({_id:wer.id_user2},function(err, result) {
 						dialogsList.push({id:wer._id, user:result.username,mess:wer.msg[wer.msg.length-1].text, img:result.pathAvatar});
 						j++;
-						console.log(j + " " +userDialogs.dialogs.length);
+						// console.log(j + " " +userDialogs.dialogs.length);
 						if(j == userDialogs.dialogs.length){
 							res.send(dialogsList);
 						}
@@ -760,7 +888,7 @@ app.post('/loadDialogs',function(req, res){
 				 	User.findOne({_id:wer.id_user1},function(err, result) {
 						dialogsList.push({id:wer._id, user:result.username, mess:wer.msg[wer.msg.length-1].text, img:result.pathAvatar});
 						j++;
-						console.log(j + " " +userDialogs.dialogs.length);
+						// console.log(j + " " +userDialogs.dialogs.length);
 						if(j == userDialogs.dialogs.length){
 							res.send(dialogsList);
 						}
@@ -796,13 +924,133 @@ app.post('/setting', function(req, res){
 			if(err) throw err;
 		});
 	}
-	 // User.findOne({_id:tokenObj._id},function (err, doc) {
-	 // 	console.log(doc);
-	 // })
-	
+});
+app.post('/loadNews', function(req, res){
+	var token = req.cookies.token;
+	var number = req.body.number;
+	var dataLikes = [];
+	var dataComment = [];
+	var dataPost = [];
+	var j = 0;
+	var tokenObj = tokenVerify(token);
+
+	DataLikes(token, number, dataLikes, dataComment, dataPost, j, tokenObj);
+
+	function DataLikes(token, number, dataLikes, dataComment, dataPost, j, tokenObj){
+
+
+		News.find({$and:[{user_id:tokenObj._id},{event:'likes'}]}).limit(10).exec(function(err, docs){
+			if(err) throw err;
+			if(docs.length == 0){
+				DataPost(token, number, dataLikes, dataComment, dataPost, j, tokenObj);
+			}
+			if(docs){
+				docs.forEach(function(ell,i){
+					User.findOne({_id:ell.user_id_who},function(err, docsUser){
+						if(docsUser){
+							dataLikes.push({
+								userName:docsUser.username,
+								userId:ell.user_id_who,
+								date:ell.date,
+								text:ell.text,
+								picture:docsUser.pathAvatar
+							});
+							j++;
+						}
+						if(j == docs.length){
+							 DataPost(token, number, dataLikes, dataComment, dataPost, j, tokenObj);
+							 //res.send({dataLikes:dataLikes, dataComment:dataComment, dataPost:dataPost});
+						}
+					});
+				});
+			}
+		});
+	}
+	function DataPost(token, number, dataLikes, dataComment, dataPost, j, tokenObj){
+		User.findOne({_id:tokenObj._id}, function(err,docs){
+			j = 0;
+			i = 0;
+			if(err) throw err;
+			if(docs.follow.length == 0){
+				console.log("there");
+				DataComment(token, number, dataLikes, dataComment, dataPost, j, tokenObj);
+			}
+			docs.follow.forEach(function(ell){
+				News.find({$and:[{user_id:ell.idUser},{event:'posts'}]}).limit(5).sort({'_id':1}).exec(function(err, docsPost){
+					if(docsPost.length == 0){
+						j++;
+						if(j == docs.follow.length){
+								j = 0;
+								DataComment(token, number, dataLikes, dataComment, dataPost, j, tokenObj);
+						}
+					}
+					docsPost.forEach(function(ellPost){
+						User.findOne({_id:ell.idUser},function(err, docsUser){
+							if(docsUser){
+							dataPost.push({
+								userName:docsUser.username,
+								userId:docsUser._id,
+								date:ellPost.date,
+								text:ellPost.text,
+								picture:docsUser.pathAvatar
+							});
+							i++;
+							if(i == docsPost.length){
+								j++;
+								i = 0;
+								console.log("there" + i);
+								console.log(docs.follow.length + "j" +j);
+								console.log(dataPost);
+							}
+							if(j == docs.follow.length){
+								j = 0;
+								DataComment(token, number, dataLikes, dataComment, dataPost, j, tokenObj);
+							}
+						}
+						});
+					});
+				});
+			});
+		});
+	}
+	function DataComment(token, number, dataLikes, dataComment, dataPost, j, tokenObj){
+		j= 0;
+		News.find({$and:[{user_id:tokenObj._id},{event:'addComment'}]}).limit(10).exec(function(err, docsComment){
+		if(err) throw err;
+		if(docsComment.length == 0){
+			console.log("here");
+			res.send({dataLikes:dataLikes, dataComment:dataComment, dataPost:dataPost});
+		}
+			if(docsComment){
+				docsComment.forEach(function(ell){
+					User.findOne({_id:ell.user_id_who},function(err, docs){
+						if(err) throw err;
+
+						dataComment.push({
+							userName:docs.username,
+							userId:docs._id,
+							date:ell.date,
+							text:ell.text,
+							picture:docs.pathAvatar
+
+						});
+						j++;
+						if(j == docsComment.length){
+							res.send({dataLikes:dataLikes, dataComment:dataComment, dataPost:dataPost});
+						}
+					})
+				});
+			}
+		})
+	}
 });
 
 http.listen(3000, function() {
     console.log("Server is working on http://localhost:3000/");
 });
+
+
+News.find({},function(err, docs){
+	console.log(docs);
+})
 
