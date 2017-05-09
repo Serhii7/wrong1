@@ -7,6 +7,7 @@ var newsSchema = new Schema({
 	user_id:String,
 	date:String,
 	text:String,
+	picture:String,
 	event:String
 });
 

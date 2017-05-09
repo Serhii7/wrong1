@@ -28,6 +28,9 @@ var userSchema = new Schema({
     age: Number,
     website: String
   },
+  photos:[
+    {pathPhoto:String}
+  ],
   describe:String,
   created_at: String,
   updated_at: Date

@@ -13,10 +13,11 @@ $(function () {
 	socket.emit('news',token);
 
 	socket.on('news', function(msg){
-	      $('body').append('<div class="alert alert-info" role="alert">'+msg+'</div>');
-	      $('.alert').fadeIn(1000);
+	      $('body').append('<div class="alert-msg alert alert-info" role="alert">'+msg+'</div>');
+	      console.log(msg);
+	      $('.alert-msg').fadeIn(1000);
 		
-	      $('.alert').fadeOut(3000);
+	      $('.alert-msg').fadeOut(3000);
 	    });
 
 	});

@@ -4,7 +4,8 @@
 	<meta charset="UTF-8">
 	<title>User</title>
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-	<link rel="stylesheet" type="text/css" href="../stylesheets/screen.css">
+	<link rel="stylesheet" type="text/css" href="../../stylesheets/screen.css">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
 
@@ -16,7 +17,7 @@
 		</div>
 		<div class = "nav-block-userpage">
 			<ul class="nav-userpage">
-				<li><span class="glyphicon glyphicon-send" aria-hidden="true"></span>Notifications</li>
+				<li type="button"  data-toggle="modal" data-target="#myModalNews" id = "loadNews"><span class="glyphicon glyphicon-send" aria-hidden="true"></span>Notifications</li>
 				<li type="button"  data-toggle="modal" data-target="#myModal" id = "loadDialogs"><span class="glyphicon glyphicon-envelope" aria-hidden="true"></span>Messages</li>
 			</ul>
 		</div>
@@ -25,6 +26,7 @@
 				<input type="text" name="searchPerson" placeholder="Person" >
 				<button id = "findPerson"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button>
 			</form>
+
 		</div>
 		<div class = "nav-menu-dropdown-setting">
 		<div>
@@ -39,6 +41,7 @@
 	</div>
 	<div class = "bg-userpage">	
 		<div class = "wrapper-bg-content">
+			<button type="button" class="btn btn-primary" id = "createChat">Send</button>
 			<button id = "follow" class = "btn btn-primary" user-id = "<%= users._id %>"><%= done %></button>
 		</div>
 	<img src="../<%= pathBg %>">
@@ -48,7 +51,7 @@
 		<div class = "left-inform-user-top">	
 			<div class="wrapper-img-avatar">
 			<% if(!path){%>
-					<img src="../uploads/noavatar.jpg">	
+					<img src="../../uploads/noavatar.jpg">	
 			<% } else {%>
 				<img src="../<%= path %>">
 			<% } %>
@@ -89,7 +92,12 @@
 			<% for(var i = 0; i < recom.length; i++){ %>
 			<div class="wrapper-recom-item">
 			<div class="wrapper-img-btn">
+			<% if(!path){%>
+				<img src="../../uploads/noavatar.jpg">	
+			<% } else {%>
+				
 				<img src="..\<%= recom[i].pathAvatar %>">
+			<% } %>
 			</div>
 			<div class = "wrapper-left-infor-recom">
 				<div class="wrapper-username">
@@ -109,6 +117,7 @@
 			
 	<div class="title-block-recom">
 		The Follows
+		<span data-toggle="modal" data-target="#modalViewAllUser" id = "showFollowUser">View all</span>
 	</div>
 		<% if(follows.length == 0){%>
 		<div>You don`t have following</div>
@@ -117,7 +126,7 @@
 		<div class="wrapper-recom-item">
 		<div class="wrapper-img-btn">
 		<% if(!follows[i].pathAvatar){%>
-				<img src="../uploads/noavatar.jpg">	
+				<img src="../../uploads/noavatar.jpg">	
 		<% } else {%>
 			<img src="..\<%= follows[i].pathAvatar %>">
 		<% } %>
@@ -136,26 +145,8 @@
 		<% } %>
 	</div>
 
-	<!-- <form enctype="multipart/form-data" method="POST">
-		<input type="file" name="filePost">
-		<input type="text" name="text" placeholder="Twitt">
-		<button id = "add_repost" type = "submit">Repost</button>
-	</form> -->
-<br>
 
-	<!-- <form enctype="multipart/form-data" method="POST" id = "adds">
-	<span>Do you want to add a post?</span>
-		<input type="text" name="text" placeholder="Twitt" id = "textPost">
-	<label class = fileContainer>
-		<span class="glyphicon glyphicon-camera" aria-hidden="true"></span>
-		<span id = "chosen"></span>
-		<input type="file" name="uploadFileP" id = "filea">
-	</label>
-		<button type = "submit"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
-</button>
-	</form> -->
-
-		<div id="wrapper-posts">
+		<div id="wrapper-posts" class = "user-wrapper-posts">
 		<% if( posts.length == 0){%>
 			<div class = "center">Empty</div>
 		<% } %>
@@ -163,7 +154,11 @@
 			<div class = "wrapper-post">
 			<div class="block-wrapper-content">
 			<div class="wrapper-img-post">
-				<img src="../<%= path %>">
+				<% if(!path){%>
+					<img src="../../uploads/noavatar.jpg">	
+				<% } else {%>
+					<img src="../<%= path %>">
+				<% } %>
 			</div>
 				<div class="author"><a href="/userpage/<%= posts[i].user_id %>"><%= posts[i].user_id %></a></div>
 				<div class="data-block-comment">
@@ -204,6 +199,9 @@
 										</div>
 					<% } %>
 									</div>
+				<% } %>
+				<% if(dialogs){ %>
+					<div id = "loadMoreUser">Load more</div>
 				<% } %>
 			</div>
 	<!-- <div id="regomendation">
@@ -269,7 +267,208 @@
 		    </div>
 		  </div>
 		</div>
+
+		 <div id="templateComments" style = "display:none">
+		 	<div class="wrapper-comment">
+				<div comment-id post-id class="delete">
+					<span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+				</div>
+				<div class="author"><a href></a></div>
+				<div class="data-block-comment"></div>
+				<div class="text-comment-wrapper"></div>
+				<div comment-id post-id class="likes">
+					<span class="glyphicon glyphicon-heart" aria-hidden="true"></span>
+				</div>
+			</div>
+		 </div>
+		<div id="templateLoadPost" style = "display:none">
+		 <div class="wrapper-post">
+					<div class="block-wrapper-content">
+					<div class="wrapper-img-post">
+						<img img-post-load>
+					</div>
+						<div class="author"><a href=""></a></div>
+						<div class="data-block-comment">
+							
+						</div>
+						<div class="text-post">
+							
+						</div>
+						
+						<div class="post-img-content">
+							<img src="">
+						</div>
+						
+						<div post-id class="likesPost">
+							<span class="glyphicon glyphicon-heart" aria-hidden="true"></span>
+							<div></div>
+						</div>
+
+						
+						<div class="wrapper-comment-form">
+							<input type="text" id="comment" placeholder="Comment">
+							<button post-id></button>
+						</div>
+					</div>
+		</div>
+		</div>
+		<div class="modal fade" id="modalViewAllUser" tabindex="-1" role="dialog" aria-labelledby="modalViewAllUser">
+		  <div class="modal-dialog" role="document">
+		    <div class="modal-content">
+		      <div class="modal-header">
+		        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+		        <h4 class="modal-title" id="modalViewAll">You Follow</h4>
+		      </div>
+		      <div class="modal-body" id = "block-content-follow">
+				
+		      <div id="searchWrapper">
+		        
+		       </div>
+		      </div>
+		      <div class="modal-footer">
+		        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+		      </div>
+		    </div>
+		  </div>
+		</div>
+
+	 
+		</div>
+		<div class="modal fade" id="myModalNews" tabindex="-1" role="new" aria-labelledby="myModalLabel">
+		  <div class="modal-dialog" role="document">
+		    <div class="modal-content">
+		      <div class="modal-header">
+		        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+		        <h4 class="modal-title" id="myModalLabel">Dialogs</h4>
+		      </div>
+		      <div class="modal-body">
+					<ul class="nav nav-tabs" role="tablist">
+					   <li role="presentation" class="active"><a href="#comments" aria-controls="comments" role="tab" data-toggle="tab">Comments</a></li>
+					   <li role="presentation"><a href="#likes" aria-controls="likes" role="tab" data-toggle="tab">Likes</a></li>
+					   <li role="presentation"><a href="#posts" aria-controls="posts" role="tab" data-toggle="tab">Posts</a></li>
+					 </ul>
+
+
+					 <div id="templateNewsWrapper">
+			 	    	<div>	
+			 				<div class="img-wrapper-news" img-wrapper-news>
+			 					<img src="" alt="" img-href >
+			 				</div>
+			 				<div class="username-wapper-news" username-wapper-news>
+			 					<a href="" a-href></a>
+			 				</div>
+			 				<div class="date-wrapper-news" date-wrapper-news>	</div>
+			 				<div class="text-wrapper-text" text-wrapper-text>	</div>
+			 	    	</div>	
+					 </div>
+			<div class="tab-content">
+			    
+			    <div role="tabpanel" class="tab-pane active" id="comments">
+			    	<div id="wrapperNewsComments">
+			    	
+			    	</div>
+			    </div>
+			    <div role="tabpanel" class="tab-pane" id="likes">
+			    	<div id="wrapperNewsLikes">	
+			    	
+			    	</div>
+			    </div>
+			    <div role="tabpanel" class="tab-pane" id="posts">
+			    	<div id="wrapperNewsPosts">	
+			    	
+			    	</div>
+			    </div>
+			  </div>
+
+			   <div id="templateComments" style = "display:none">
+			   	<div class="wrapper-comment">
+			  		<div comment-id post-id class="delete">
+			  			<span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+			  		</div>
+			  		<div class="author"><a href></a></div>
+			  		<div class="data-block-comment"></div>
+			  		<div class="text-comment-wrapper"></div>
+			  		<div comment-id post-id class="likes">
+			  			<span class="glyphicon glyphicon-heart" aria-hidden="true"></span>
+			  		</div>
+			  	</div>
+			   </div>
+
+			<div id="templateLoadPost" style = "display:none">
+				<div class="wrapper-post">
+						<div class="block-wrapper-content">
+						<div class="wrapper-img-post">
+							<img img-post-load>
+						</div>
+						<div data-id class="deletePost"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></div>
+							<div class="author"><a href=""></a></div>
+							<div class="data-block-comment">
+									
+							</div>
+							<div class="text-post">
+								
+							</div>
+
+							<div class="post-img-content">
+								<img src="">
+							</div>
+							
+							<div post-id class="likesPost">
+								<span class="glyphicon glyphicon-heart" aria-hidden="true"></span>
+								0
+							</div>
+
+							
+							<div class="wrapper-comment-form">
+								<input type="text" id="comment" placeholder="Comment">
+								<button id="SernComment" post-id><span class="glyphicon glyphicon-paperclip" aria-hidden="true"></span></button>
+							</div>
+						</div>
+			</div>
+			</div>
+
+			<div id="followtemplate" style = "display:none">
+			<div class="wrapper-recom-item">
+					<div class="wrapper-img-btn">
+					
+							<img>	
+					
+					</div>
+					<div class="wrapper-left-infor-recom">
+						<div class="wrapper-username">
+						<a href="/userpage/sergey1">
+							
+						</a>
+						</div>
+						<div class="usersub">
+						</div>
+					</div>
+			</div>
+			</div>
+
+		      <div id="NewsWrapper">
+		        <div id = "templateNews" style = "display:none">
+		        <div>
+		        	<!-- <div dialogPerson></div> -->
+		        	<img src="" avatar>
+		        	<a href = "" lastMessege></a>
+		        	<div textMsg></div>
+		        	</div>
+		        </div>
+		       </div>
+		      </div>
+		      <div class="modal-footer">
+		        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+		      </div>
+		    </div>
+		  </div>
+		</div>
+
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+	<script>
+		var user = '<%= tokenObg.q %>'
+	</script>
     <script src="../client.js"></script>
 </body>
 </html>
